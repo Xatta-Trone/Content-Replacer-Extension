@@ -18,6 +18,19 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   }
 });
 
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'downloadFile') {
+    const blob = new Blob([message.data], { type: 'video/mp4' });
+    const url = URL.createObjectURL(blob);
+    console.log(url);
+    // chrome.downloads.download({
+    //   url: url,
+    //   filename: 'recorded_screen.mp4',
+    //   saveAs: true,
+    // });
+  }
+});
+
 const IDS = {
   divId: 'extension-capture-div',
   button1Id: 'extension-capture-button',
@@ -50,6 +63,7 @@ function createDiv() {
     'style',
     'padding:14px 25px; color:white; background: #242424;margin-bottom: 10px;cursor: pointer;'
   );
+  button2.onclick = () => startRecording();
 
   const button22 = document.createElement('button');
   button22.id = IDS.button22Id;
@@ -107,6 +121,17 @@ function turnGrayScale() {
   html.setAttribute(
     'style',
     `-moz-filter: grayscale(100%);-webkit-filter: grayscale(100%);filter: gray;filter: grayscale(100%);`
+  );
+}
+
+function startRecording() {
+  chrome.runtime.sendMessage(
+    {
+      type: 'RECORDING_START',
+    },
+    (response) => {
+      console.log(response);
+    }
   );
 }
 
