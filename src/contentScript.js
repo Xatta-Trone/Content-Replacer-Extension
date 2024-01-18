@@ -339,6 +339,20 @@ function buildImagePopup() {
         display: block;
       }
 
+      .extension-drop-area {
+          border: 2px dashed #ccc;
+          padding: 20px;
+          text-align: center;
+          cursor: pointer;
+      }
+
+      .extension-drop-area.highlight {
+          border-color: #2196F3;
+      }
+
+      .extension-drop-result {
+          margin-top: 20px;
+      }
 
       `;
   document.body.appendChild(style);
@@ -360,10 +374,95 @@ function buildImagePopup() {
   onclickBtn.innerHTML = 'Add click action';
   onclickBtn.onclick = onClickHandler;
 
+  const imgDropArea = document.createElement('div');
+  imgDropArea.id = 'extension-img-drop-area';
+  imgDropArea.className = 'extension-drop-area';
+  imgDropArea.innerHTML = `
+<p>Drag and drop an image here or click to select one</p>
+<input type="file" id="extensionImageFileInput" style="display: none;">
+`;
+
   div.appendChild(imgUrlBtn);
   div.appendChild(onclickBtn);
+  div.appendChild(imgDropArea);
 
   document.body.appendChild(div);
+
+  initImageDropArea();
+}
+
+function initImageDropArea() {
+  const dropArea = document.getElementById('extension-img-drop-area');
+  const fileInput = document.getElementById('extensionImageFileInput');
+  // const resultDiv = document.getElementById('result');
+
+  // Prevent default behavior for drag and drop
+  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach((eventName) => {
+    dropArea.addEventListener(eventName, preventDefaults, false);
+    document.body.addEventListener(eventName, preventDefaults, false);
+  });
+
+  // Highlight drop area when dragging over
+  ['dragenter', 'dragover'].forEach((eventName) => {
+    dropArea.addEventListener(eventName, highlight, false);
+  });
+
+  // Remove highlight when dragging leaves
+  ['dragleave', 'drop'].forEach((eventName) => {
+    dropArea.addEventListener(eventName, unhighlight, false);
+  });
+
+  // Handle dropped files
+  dropArea.addEventListener('drop', handleDrop, false);
+
+  // Open file dialog when click on the drop area
+  dropArea.addEventListener('click', () => {
+    fileInput.click();
+  });
+
+  // Handle files selected from file input
+  fileInput.addEventListener('change', handleChange, false);
+
+  function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  function highlight() {
+    dropArea.classList.add('highlight');
+  }
+
+  function unhighlight() {
+    dropArea.classList.remove('highlight');
+  }
+
+  function handleChange(e) {
+    if (e.target.files.length > 0) {
+      handleFiles(e.target.files);
+    }
+  }
+
+  function handleDrop(e) {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    handleFiles(files);
+  }
+
+  function handleFiles(files) {
+    console.log(files);
+    const fileList = Array.from(files);
+    for (const file of fileList) {
+      const reader = new FileReader();
+
+      reader.onload = function (e) {
+        const base64Data = e.target.result;
+        console.log(file.name);
+        setImageSource(currentImageElement, base64Data);
+      };
+
+      reader.readAsDataURL(file);
+    }
+  }
 }
 
 function onClickHandler() {
@@ -374,6 +473,8 @@ function onClickHandler() {
   }
 }
 
+function handleImageDragDropFile(url) {}
+
 function handleImageUrlClick() {
   if (currentImageElement == null) {
     return alert('No image selected');
@@ -381,14 +482,17 @@ function handleImageUrlClick() {
   let url = `https://placehold.co/${currentImageElement.clientWidth}x${currentImageElement.clientHeight}`;
   let userUrl = prompt('Enter image URL', url);
 
+  console.log(currentImageElement.parentNode, currentImageElement);
+  setImageSource(currentImageElement, userUrl);
+}
+
+function setImageSource(currentImageElement, userUrl) {
   if (
     currentImageElement.parentNode != null &&
     currentImageElement.parentNode.nodeName === 'PICTURE'
   ) {
     currentImageElement = currentImageElement.parentNode;
   }
-
-  console.log(currentImageElement.parentNode, currentImageElement);
 
   // placeholder ulr
   if (currentImageElement && currentImageElement.nodeName === 'IMG') {
@@ -400,6 +504,21 @@ function handleImageUrlClick() {
       currentImageElement.removeAttribute('data-srcset');
       currentImageElement.removeAttribute('data-src');
       currentImageElement.setAttribute('src', userUrl);
+      currentImageElement.setAttribute(
+        'height',
+        currentImageElement.clientHeight
+      );
+      currentImageElement.setAttribute(
+        'width',
+        currentImageElement.clientWidth
+      );
+      currentImageElement.setAttribute(
+        'style',
+        `
+        height: ${currentImageElement.clientHeight}px;
+        width: ${currentImageElement.clientWidth}px;
+      `
+      );
     }
   }
 
@@ -407,13 +526,22 @@ function handleImageUrlClick() {
   if (currentImageElement && currentImageElement.nodeName === 'PICTURE') {
     var imgElement = currentImageElement.querySelector('img');
     if (imgElement) {
-      currentImageElement.srcset = '';
-      currentImageElement.loading = 'eager';
-      currentImageElement.removeAttribute('decoding');
-      currentImageElement.removeAttribute('srcset');
-      currentImageElement.removeAttribute('data-srcset');
-      currentImageElement.removeAttribute('data-src');
-      currentImageElement.setAttribute('src', userUrl);
+      imgElement.srcset = '';
+      imgElement.loading = 'eager';
+      imgElement.removeAttribute('decoding');
+      imgElement.removeAttribute('srcset');
+      imgElement.removeAttribute('data-srcset');
+      imgElement.removeAttribute('data-src');
+      imgElement.setAttribute('src', userUrl);
+      imgElement.setAttribute('height', imgElement.clientHeight);
+      imgElement.setAttribute('width', imgElement.clientWidth);
+      imgElement.setAttribute(
+        'style',
+        `
+        height: ${imgElement.clientHeight}px;
+        width: ${imgElement.clientWidth}px;
+      `
+      );
     }
 
     var sourceElements = currentImageElement.querySelectorAll('source');
@@ -424,6 +552,7 @@ function handleImageUrlClick() {
       source.setAttribute('data-src', userUrl);
     });
   }
+  hideImagePopup();
 }
 
 function showImagePopup(event, element) {
