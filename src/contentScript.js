@@ -158,25 +158,34 @@ function injectJS() {
   );
 }
 
-/****
- * Button related functions
- *
- *
- *
- * ***/
+/**
+ *==================================================================================================================================
+ *==================================================================================================================================
+ * Button related settings
+  ____  _    _ _______ _______ ____  _   _
+ |  _ \| |  | |__   __|__   __/ __ \| \ | |
+ | |_) | |  | |  | |     | | | |  | |  \| |
+ |  _ <| |  | |  | |     | | | |  | | . ` |
+ | |_) | |__| |  | |     | | | |__| | |\  |
+ |____/ \____/   |_|     |_|  \____/|_| \_|
+ *==================================================================================================================================
+ *==================================================================================================================================
+ */
+detectButton();
+buildButtonPopup();
 
-let buttonTags = [
-  'button',
-  // '.btn',
-  // '[class*=btn]',
-  'a[role=button]',
-  'span[role=button]',
-  'input[type=button]',
-  'input[type=submit]',
-  'input[type=reset]',
-];
 
 function detectButton() {
+  let buttonTags = [
+    'button',
+    // '.btn',
+    // '[class*=btn]',
+    'a[role=button]',
+    'span[role=button]',
+    'input[type=button]',
+    'input[type=submit]',
+    'input[type=reset]',
+  ];
   let elements = [];
   buttonTags.forEach((tag) => elements.push(...document.querySelectorAll(tag)));
 
@@ -194,8 +203,7 @@ function detectButton() {
   });
 }
 
-detectButton();
-buildButtonPopup();
+
 
 let currentButtonElement = null;
 
@@ -308,13 +316,25 @@ document.addEventListener('click', function () {
   hidePopup();
 });
 
+
 /**
- *=================================================================
- *
- * Image contents
- *
- *=================================================================
+ *==================================================================================================================================
+ *==================================================================================================================================
+ * Image related settings
+  _____
+ |_   _|
+   | |  _ __ ___   __ _  __ _  ___
+   | | | '_ ` _ \ / _` |/ _` |/ _ \
+  _| |_| | | | | | (_| | (_| |  __/
+ |_____|_| |_| |_|\__,_|\__, |\___|
+                         __/ |
+                        |___/
+ *==================================================================================================================================
+ *==================================================================================================================================
  */
+
+
+
 // image related
 
 detectImage();
@@ -382,9 +402,21 @@ function buildImagePopup() {
 <input type="file" id="extensionImageFileInput" style="display: none;">
 `;
 
+  // delete element button
+  const deleteButton = document.createElement('button');
+  deleteButton.innerHTML = 'Delete Image';
+  deleteButton.onclick = deleteImageClick;
+
+  // hide button click
+  const hideButton = document.createElement('button');
+  hideButton.innerHTML = 'Hide Image';
+  hideButton.onclick = hideImageClick;
+
   div.appendChild(imgUrlBtn);
   div.appendChild(onclickBtn);
   div.appendChild(imgDropArea);
+  div.appendChild(deleteButton);
+  div.appendChild(hideButton);
 
   document.body.appendChild(div);
 
@@ -465,6 +497,27 @@ function initImageDropArea() {
   }
 }
 
+function deleteImageClick() {
+  if (currentImageElement != null) {
+    if (
+      currentImageElement.parentNode != null &&
+      currentImageElement.parentNode.nodeName === 'PICTURE'
+    ) {
+      currentImageElement.parentNode.remove();
+    } else {
+      currentImageElement.remove();
+    }
+    currentImageElement = null;
+  }
+}
+
+function hideImageClick() {
+  if (currentImageElement != null) {
+    currentImageElement.style.display = 'none';
+    currentImageElement = null;
+  }
+}
+
 function onClickHandler() {
   var jsCodeBlock = prompt('Enter a valid JS code block:');
   if (jsCodeBlock != '' || jsCodeBlock != null) {
@@ -473,7 +526,7 @@ function onClickHandler() {
   }
 }
 
-function handleImageDragDropFile(url) {}
+
 
 function handleImageUrlClick() {
   if (currentImageElement == null) {
@@ -631,3 +684,19 @@ function detectImage() {
 function checkIfImageHasPictureParent(imgElement) {
   return imgElement.parentNode && imgElement.parentNode.nodeName === 'PICTURE';
 }
+
+
+
+/**
+ *==================================================================================================================================
+ *==================================================================================================================================
+ * Video related settings
+ __      _______ _____  ______ ____
+ \ \    / /_   _|  __ \|  ____/ __ \
+  \ \  / /  | | | |  | | |__ | |  | |
+   \ \/ /   | | | |  | |  __|| |  | |
+    \  /   _| |_| |__| | |___| |__| |
+     \/   |_____|_____/|______\____/
+ *==================================================================================================================================
+ *==================================================================================================================================
+ */
