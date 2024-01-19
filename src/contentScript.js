@@ -1,4 +1,8 @@
 'use strict';
+import './button.js';
+import './image.js';
+import './video.js';
+import './bg-img.js';
 
 // Content script file will run in the context of web page.
 // With content script you can manipulate the web pages using
@@ -37,6 +41,8 @@ const IDS = {
   button2Id: 'extension-capture-button2',
   button22Id: 'extension-capture-button22',
   button3Id: 'extension-close-button',
+  button4Id: 'extension-text-button',
+  button5Id: 'extension-btn-button',
 };
 
 function createDiv() {
@@ -47,6 +53,9 @@ function createDiv() {
     'display:block; margin-top:10px;text-align:center;position:sticky;bottom:20px;left:100%;transform:translateX(-10%);z-index:99999;max-width:10%;'
   );
 
+  const p = document.createElement('p');
+  p.innerHTML = `Shortcut keys <br> ctrl + shift => image <br> ctrl+alt => video<br> ctrl+z => bg image.`;
+
   const button = document.createElement('button');
   button.id = IDS.button1Id;
   button.innerText = 'Turn Grayscale';
@@ -55,6 +64,24 @@ function createDiv() {
     'padding:14px 25px; color:white; background: #242424;margin-bottom: 10px;cursor: pointer;'
   );
   button.onclick = () => turnGrayScale();
+
+  const textButton = document.createElement('button');
+  textButton.innerText = 'Change All Text';
+  textButton.id = IDS.button4Id;
+  textButton.setAttribute(
+    'style',
+    'padding:14px 25px; color:white; background: #242424;margin-bottom: 10px;cursor: pointer;'
+  );
+  textButton.onclick = () => changeAllTextRecursively(document.body);
+
+  const btnButton = document.createElement('button');
+  btnButton.innerText = 'Replace button text';
+  btnButton.id = IDS.button5Id;
+  btnButton.setAttribute(
+    'style',
+    'padding:14px 25px; color:white; background: #242424;margin-bottom: 10px;cursor: pointer;'
+  );
+  btnButton.onclick = () => replaceButtons();
 
   const button2 = document.createElement('button');
   button2.id = IDS.button2Id;
@@ -83,7 +110,10 @@ function createDiv() {
   );
   button3.onclick = () => toggleBtnVisibility();
 
+  div.appendChild(p);
   div.appendChild(button);
+  div.appendChild(textButton);
+  div.appendChild(btnButton);
   div.appendChild(button2);
   div.appendChild(button22);
   div.appendChild(button3);
@@ -158,27 +188,58 @@ function injectJS() {
   );
 }
 
-/**
- *==================================================================================================================================
- *==================================================================================================================================
- * Button related settings
-  ____  _    _ _______ _______ ____  _   _
- |  _ \| |  | |__   __|__   __/ __ \| \ | |
- | |_) | |  | |  | |     | | | |  | |  \| |
- |  _ <| |  | |  | |     | | | |  | | . ` |
- | |_) | |__| |  | |     | | | |__| | |\  |
- |____/ \____/   |_|     |_|  \____/|_| \_|
- *==================================================================================================================================
- *==================================================================================================================================
- */
-detectButton();
-buildButtonPopup();
+function changeAllTextRecursively(element) {
+  // Check if the element is not a script or style element
+  if (
+    element.tagName !== 'SCRIPT' &&
+    element.tagName !== 'STYLE' &&
+    element.tagName !== 'BUTTON'
+  ) {
+    // Update the text content of the element
+    element.childNodes.forEach(function (node) {
+      if (node.nodeType === 3) {
+        // Text node
+        node.textContent = replaceWithJibrish(node.textContent.trim());
+      } else if (node.nodeType === 1) {
+        // Element node
+        // Recursively call the function for child elements
+        changeAllTextRecursively(node);
+      }
+    });
+  }
+}
 
-function detectButton() {
-  let buttonTags = [
+function replaceWithJibrish(originalText) {
+  const loremIpsum = `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Odio pellentesque diam volutpat commodo. Mauris cursus mattis molestie a iaculis at erat pellentesque. Potenti nullam ac tortor vitae purus faucibus ornare suspendisse sed. Nunc id cursus metus aliquam. Et malesuada fames ac turpis. Sed sed risus pretium quam vulputate dignissim suspendisse in. Leo duis ut diam quam nulla porttitor massa id neque. Etiam non quam lacus suspendisse faucibus interdum posuere. Eu consequat ac felis donec et odio pellentesque. Maecenas volutpat blandit aliquam etiam erat. At volutpat diam ut venenatis tellus in metus. Rutrum tellus pellentesque eu tincidunt tortor aliquam nulla. At volutpat diam ut venenatis tellus in metus.
+    A erat nam at lectus. Diam donec adipiscing tristique risus nec feugiat. Quam vulputate dignissim suspendisse in est ante. At elementum eu facilisis sed odio morbi quis. Non blandit massa enim nec dui nunc mattis enim. Maecenas accumsan lacus vel facilisis. Dis parturient montes nascetur ridiculus mus mauris vitae ultricies leo. Nisi lacus sed viverra tellus in hac. Egestas pretium aenean pharetra magna ac. Platea dictumst vestibulum rhoncus est pellentesque elit ullamcorper dignissim cras.
+    `;
+
+  let splitted = loremIpsum.split(' ');
+  let textLength = originalText.length;
+  let wordCount = originalText.split(' ').length;
+  let replacedText = [];
+
+  while (textLength > 0) {
+    let word = splitted.shift();
+
+    if (word == undefined) {
+      splitted = loremIpsum.split(' ');
+      word = splitted.shift();
+    }
+
+    // check for single word
+    textLength = textLength - word.length - 1;
+    replacedText.push(word);
+  }
+
+  return replacedText.join(' ');
+}
+
+function replaceButtons() {
+  let tags = [
     'button',
-    // '.btn',
-    // '[class*=btn]',
+    '.btn',
+    '[class*=btn]',
     'a[role=button]',
     'span[role=button]',
     'input[type=button]',
@@ -186,749 +247,21 @@ function detectButton() {
     'input[type=reset]',
   ];
   let elements = [];
-  buttonTags.forEach((tag) => elements.push(...document.querySelectorAll(tag)));
 
-  console.log(elements);
+  tags.forEach((tag) => elements.push(...document.querySelectorAll(tag)));
 
-  // Add a contextmenu event listener to each buttons
-  elements.forEach(function (element) {
-    element.addEventListener('contextmenu', function (event) {
-      // Prevent the default context menu from appearing
-      event.preventDefault();
-      // Alert the id of the clicked element
-      // alert('Right-click detected on button with id: ' + element.id);
-      showPopup(event, element);
-    });
-  });
-}
-
-let currentButtonElement = null;
-
-function buildButtonPopup() {
-  let style = document.createElement('style');
-  style.innerHTML = ` .extension-popup {
-        display: none;
-        position: absolute;
-        background-color: #fff;
-        border: 1px solid #ccc;
-        padding: 15px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        z-index: 99999999;
-      }
-      .extension-popup button {
-        display: block;
-      }
-
-
-      `;
-  document.body.appendChild(style);
-
-  const div = document.createElement('div');
-  div.id = 'extension-popup';
-  div.className = 'extension-popup ';
-  div.innerHTML = `<p>Button popup</p>`;
-
-  // delete element button
-  const deleteButton = document.createElement('button');
-  deleteButton.innerHTML = 'Delete button';
-  deleteButton.onclick = deleteButtonClick;
-
-  // hide button click
-  const hideButton = document.createElement('button');
-  hideButton.innerHTML = 'Hide button';
-  hideButton.onclick = hideButtonClick;
-
-  // change bg color click
-  const changeBgColorButton = document.createElement('button');
-  changeBgColorButton.innerHTML = 'Change background color';
-  changeBgColorButton.onclick = changeButtonBgColor;
-
-  // add right click handler
-  const onclickBtn = document.createElement('button');
-  onclickBtn.innerHTML = 'Add JS action';
-  onclickBtn.onclick = onClickButtonAction;
-
-  div.appendChild(deleteButton);
-  div.appendChild(hideButton);
-  div.appendChild(changeBgColorButton);
-  div.appendChild(onclickBtn);
-
-  document.body.appendChild(div);
-}
-
-function onClickButtonAction() {
-  var jsCodeBlock = prompt('Enter a valid JS code block:');
-  if (jsCodeBlock != '' || jsCodeBlock != null) {
-    currentButtonElement.removeAttribute('onclick');
-    currentButtonElement.setAttribute('onclick', jsCodeBlock);
-  }
-}
-
-function deleteButtonClick() {
-  if (currentButtonElement != null) {
-    currentButtonElement.remove();
-    currentButtonElement = null;
-  }
-}
-
-function hideButtonClick() {
-  if (currentButtonElement != null) {
-    currentButtonElement.style.display = 'none';
-    currentButtonElement = null;
-  }
-}
-
-function changeButtonBgColor() {
-  if (currentButtonElement != null) {
-    var color = prompt('Enter a valid color name/code:');
-    if (color != '' || color != null) {
-      currentButtonElement.style.backgroundColor = color;
-    }
-    currentButtonElement = null;
-  }
-}
-
-function showPopup(event, element) {
-  // alert("Popup is shown");
-  var popup = document.getElementById('extension-popup');
-  popup.style.display = 'block';
-  console.log(event, popup, element);
-  currentButtonElement = element;
-
-  // Calculate position based on the clicked element's coordinates
-  var x = event.clientX + window.pageXOffset;
-  var y = event.clientY + window.pageYOffset;
-
-  popup.style.left = x + 'px';
-  popup.style.top = y + 'px';
-}
-
-// Function to hide the popup
-function hidePopup() {
-  var popup = document.getElementById('extension-popup');
-  popup.style.display = 'none';
-}
-
-document.addEventListener('click', function () {
-  hidePopup();
-});
-
-/**
- *==================================================================================================================================
- *==================================================================================================================================
- * Image related settings
-  _____
- |_   _|
-   | |  _ __ ___   __ _  __ _  ___
-   | | | '_ ` _ \ / _` |/ _` |/ _ \
-  _| |_| | | | | | (_| | (_| |  __/
- |_____|_| |_| |_|\__,_|\__, |\___|
-                         __/ |
-                        |___/
- *==================================================================================================================================
- *==================================================================================================================================
- */
-
-// image related
-
-detectImage();
-buildImagePopup();
-
-let currentImageElement = null;
-let imageWidth = null;
-let imageHeight = null;
-
-function buildImagePopup() {
-  let style = document.createElement('style');
-  style.innerHTML = ` .extension-image-popup {
-        display: none;
-        position: absolute;
-        background-color: #fff;
-        border: 1px solid #ccc;
-        padding: 15px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        z-index: 99999999;
-      }
-      .extension-image-popup button {
-        display: block;
-      }
-
-      .extension-drop-area {
-          border: 2px dashed #ccc;
-          padding: 20px;
-          text-align: center;
-          cursor: pointer;
-      }
-
-      .extension-drop-area.highlight {
-          border-color: #2196F3;
-      }
-
-      .extension-drop-result {
-          margin-top: 20px;
-      }
-
-      `;
-  document.body.appendChild(style);
-
-  const div = document.createElement('div');
-  div.id = 'extension-image-popup';
-  div.className = 'extension-image-popup ';
-  div.innerHTML = `
-  <p>Image popup</p>
-  `;
-
-  // delete element button
-  const imgUrlBtn = document.createElement('button');
-  imgUrlBtn.innerHTML = 'Image URL';
-  imgUrlBtn.onclick = handleImageUrlClick;
-
-  // add right click handler
-  const onclickBtn = document.createElement('button');
-  onclickBtn.innerHTML = 'Add click action';
-  onclickBtn.onclick = onClickHandler;
-
-  const imgDropArea = document.createElement('div');
-  imgDropArea.id = 'extension-img-drop-area';
-  imgDropArea.className = 'extension-drop-area';
-  imgDropArea.innerHTML = `
-<p>Drag and drop an image here or click to select one</p>
-<input type="file" id="extensionImageFileInput" style="display: none;">
-`;
-
-  // delete element button
-  const deleteButton = document.createElement('button');
-  deleteButton.innerHTML = 'Delete Image';
-  deleteButton.onclick = deleteImageClick;
-
-  // hide button click
-  const hideButton = document.createElement('button');
-  hideButton.innerHTML = 'Hide Image';
-  hideButton.onclick = hideImageClick;
-
-  div.appendChild(imgUrlBtn);
-  div.appendChild(onclickBtn);
-  div.appendChild(imgDropArea);
-  div.appendChild(deleteButton);
-  div.appendChild(hideButton);
-
-  document.body.appendChild(div);
-
-  initImageDropArea();
-}
-
-function initImageDropArea() {
-  const dropArea = document.getElementById('extension-img-drop-area');
-  const fileInput = document.getElementById('extensionImageFileInput');
-  // const resultDiv = document.getElementById('result');
-
-  // Prevent default behavior for drag and drop
-  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach((eventName) => {
-    dropArea.addEventListener(eventName, preventDefaults, false);
-    document.body.addEventListener(eventName, preventDefaults, false);
-  });
-
-  // Highlight drop area when dragging over
-  ['dragenter', 'dragover'].forEach((eventName) => {
-    dropArea.addEventListener(eventName, highlight, false);
-  });
-
-  // Remove highlight when dragging leaves
-  ['dragleave', 'drop'].forEach((eventName) => {
-    dropArea.addEventListener(eventName, unhighlight, false);
-  });
-
-  // Handle dropped files
-  dropArea.addEventListener('drop', handleDrop, false);
-
-  // Open file dialog when click on the drop area
-  dropArea.addEventListener('click', () => {
-    fileInput.click();
-  });
-
-  // Handle files selected from file input
-  fileInput.addEventListener('change', handleChange, false);
-
-  function preventDefaults(e) {
-    e.preventDefault();
-    e.stopPropagation();
-  }
-
-  function highlight() {
-    dropArea.classList.add('highlight');
-  }
-
-  function unhighlight() {
-    dropArea.classList.remove('highlight');
-  }
-
-  function handleChange(e) {
-    if (e.target.files.length > 0) {
-      handleFiles(e.target.files);
-    }
-  }
-
-  function handleDrop(e) {
-    const dt = e.dataTransfer;
-    const files = dt.files;
-    handleFiles(files);
-  }
-
-  function handleFiles(files) {
-    console.log(files);
-    const fileList = Array.from(files);
-    for (const file of fileList) {
-      const reader = new FileReader();
-
-      reader.onload = function (e) {
-        const base64Data = e.target.result;
-        console.log(file.name);
-        setImageSource(currentImageElement, base64Data);
-      };
-
-      reader.readAsDataURL(file);
-    }
-  }
-}
-
-function deleteImageClick() {
-  if (currentImageElement != null) {
+  for (let index = 0; index < elements.length; index++) {
     if (
-      currentImageElement.parentNode != null &&
-      currentImageElement.parentNode.nodeName === 'PICTURE'
+      elements[index].id !== IDS.button1Id &&
+      elements[index].id !== IDS.button22Id &&
+      elements[index].id !== IDS.button2Id &&
+      elements[index].id !== IDS.button3Id &&
+      elements[index].id !== IDS.button4Id &&
+      elements[index].id !== IDS.button5Id
     ) {
-      currentImageElement.parentNode.remove();
-    } else {
-      currentImageElement.remove();
-    }
-    currentImageElement = null;
-  }
-}
-
-function hideImageClick() {
-  if (currentImageElement != null) {
-    currentImageElement.style.display = 'none';
-    currentImageElement = null;
-  }
-}
-
-function onClickHandler() {
-  var jsCodeBlock = prompt('Enter a valid JS code block:');
-  if (jsCodeBlock != '' || jsCodeBlock != null) {
-    currentImageElement.removeAttribute('onclick');
-    currentImageElement.setAttribute('onclick', jsCodeBlock);
-  }
-}
-
-function handleImageUrlClick() {
-  if (currentImageElement == null) {
-    return alert('No image selected');
-  }
-  let url = `https://placehold.co/${currentImageElement.clientWidth}x${currentImageElement.clientHeight}`;
-  let userUrl = prompt('Enter image URL', url);
-
-  console.log(currentImageElement.parentNode, currentImageElement);
-  setImageSource(currentImageElement, userUrl);
-}
-
-function setImageSource(currentImageElement, userUrl) {
-  if (
-    currentImageElement.parentNode != null &&
-    currentImageElement.parentNode.nodeName === 'PICTURE'
-  ) {
-    currentImageElement = currentImageElement.parentNode;
-  }
-
-  // placeholder ulr
-  if (currentImageElement && currentImageElement.nodeName === 'IMG') {
-    if (userUrl != null || userUrl != '') {
-      currentImageElement.srcset = '';
-      currentImageElement.loading = 'eager';
-      currentImageElement.removeAttribute('decoding');
-      currentImageElement.removeAttribute('srcset');
-      currentImageElement.removeAttribute('data-srcset');
-      currentImageElement.removeAttribute('data-src');
-      currentImageElement.setAttribute('src', userUrl);
-      currentImageElement.setAttribute(
-        'height',
-        currentImageElement.clientHeight
-      );
-      currentImageElement.setAttribute(
-        'width',
-        currentImageElement.clientWidth
-      );
-      currentImageElement.setAttribute(
-        'style',
-        `
-        height: ${currentImageElement.clientHeight}px;
-        width: ${currentImageElement.clientWidth}px;
-      `
-      );
+      elements[index].innerText = 'Button';
     }
   }
+};
 
-  // try for picture images
-  if (currentImageElement && currentImageElement.nodeName === 'PICTURE') {
-    var imgElement = currentImageElement.querySelector('img');
-    if (imgElement) {
-      imgElement.srcset = '';
-      imgElement.loading = 'eager';
-      imgElement.removeAttribute('decoding');
-      imgElement.removeAttribute('srcset');
-      imgElement.removeAttribute('data-srcset');
-      imgElement.removeAttribute('data-src');
-      imgElement.setAttribute('src', userUrl);
-      imgElement.setAttribute('height', imgElement.clientHeight);
-      imgElement.setAttribute('width', imgElement.clientWidth);
-      imgElement.setAttribute(
-        'style',
-        `
-        height: ${imgElement.clientHeight}px;
-        width: ${imgElement.clientWidth}px;
-      `
-      );
-    }
 
-    var sourceElements = currentImageElement.querySelectorAll('source');
-    sourceElements.forEach(function (source) {
-      source.setAttribute('srcset', userUrl);
-      source.setAttribute('src', userUrl);
-      source.setAttribute('data-srcset', userUrl);
-      source.setAttribute('data-src', userUrl);
-    });
-  }
-  hideImagePopup();
-}
-
-function showImagePopup(event, element) {
-  // alert("Popup is shown");
-  var popup = document.getElementById('extension-image-popup');
-  popup.style.display = 'block';
-  currentImageElement = element;
-  currentImageElement.loading = 'eager';
-
-  console.log(element);
-
-  // Calculate position based on the clicked element's coordinates
-  var x = event.clientX + window.scrollX;
-  var y = event.clientY + window.scrollY;
-
-  popup.style.left = x + 'px';
-  popup.style.top = y + 'px';
-}
-
-// Function to hide the popup
-function hideImagePopup() {
-  var popup = document.getElementById('extension-image-popup');
-  popup.style.display = 'none';
-}
-
-document.addEventListener('click', function () {
-  hideImagePopup();
-});
-
-function detectImage() {
-  let images = document.getElementsByTagName('img');
-  console.log('images on this page', images);
-
-  // Add a contextmenu event listener to each images
-  for (let index = 0; index < images.length; index++) {
-    let image = images[index];
-    image.addEventListener('contextmenu', function (event) {
-      // Prevent the default context menu from appearing
-      event.preventDefault();
-      // Alert the id of the clicked element
-      // alert('Right-click detected on button with id: ' + element.id);
-      showImagePopup(event, image);
-    });
-  }
-
-  // replace pictures
-  // let pictures = document.getElementsByTagName('picture');
-
-  // console.log('pictures on this page', pictures);
-
-  // for (var i = 0; i < pictures.length; i++) {
-  //   var imgElement = pictures[i].querySelector('img');
-  //   console.log(imgElement);
-  //   if (imgElement) {
-  //     imgElement.addEventListener('contextmenu', function (event) {
-  //       // Prevent the default context menu from appearing
-  //       event.preventDefault();
-  //       // Alert the id of the clicked element
-  //       // alert('Right-click detected on button with id: ' + element.id);
-  //       showImagePopup(event, imgElement);
-  //     });
-  //   } else {
-  //     console.log(pictures[i]);
-  //     pictures[i].addEventListener('contextmenu', function (event) {
-  //       // Prevent the default context menu from appearing
-  //       event.preventDefault();
-  //       // Alert the id of the clicked element
-  //       // alert('Right-click detected on button with id: ' + element.id);
-  //       console.log(pictures[i]);
-  //       showImagePopup(event, pictures[i]);
-  //     });
-  //   }
-  // }
-}
-
-function checkIfImageHasPictureParent(imgElement) {
-  return imgElement.parentNode && imgElement.parentNode.nodeName === 'PICTURE';
-}
-
-/**
- *==================================================================================================================================
- *==================================================================================================================================
- * Video related settings
- __      _______ _____  ______ ____
- \ \    / /_   _|  __ \|  ____/ __ \
-  \ \  / /  | | | |  | | |__ | |  | |
-   \ \/ /   | | | |  | |  __|| |  | |
-    \  /   _| |_| |__| | |___| |__| |
-     \/   |_____|_____/|______\____/
- *==================================================================================================================================
- *==================================================================================================================================
- */
-let currentVideoElement = null;
-detectVideos();
-buildVideoPopup();
-
-function buildVideoPopup() {
-  let style = document.createElement('style');
-  style.innerHTML = ` .extension-video-popup {
-        display: none;
-        position: absolute;
-        background-color: #fff;
-        border: 1px solid #ccc;
-        padding: 15px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        z-index: 99999999;
-      }
-      .extension-video-popup button {
-        display: block;
-      }
-
-      .extension-drop-area {
-          border: 2px dashed #ccc;
-          padding: 20px;
-          text-align: center;
-          cursor: pointer;
-      }
-
-      .extension-drop-area.highlight {
-          border-color: #2196F3;
-      }
-
-      .extension-drop-result {
-          margin-top: 20px;
-      }
-
-      `;
-  document.body.appendChild(style);
-
-  const div = document.createElement('div');
-  div.id = 'extension-video-popup';
-  div.className = 'extension-video-popup ';
-  div.innerHTML = `<p>Video popup</p>`;
-
-  // video replace by url btn
-  const videoURLBtn = document.createElement('button');
-  videoURLBtn.innerHTML = 'Video URL';
-  videoURLBtn.onclick = handleVideoURLBtnClick;
-
-  // delete element button
-  const deleteButton = document.createElement('button');
-  deleteButton.innerHTML = 'Delete Video';
-  deleteButton.onclick = deleteVideoClick;
-
-  // hide button click
-  const hideButton = document.createElement('button');
-  hideButton.innerHTML = 'Hide Video';
-  hideButton.onclick = hideVideoClick;
-
-  const videoDropArea = document.createElement('div');
-  videoDropArea.id = 'extension-video-drop-area';
-  videoDropArea.className = 'extension-drop-area';
-  videoDropArea.innerHTML = `
-<p>Drag and drop an video here or click to select one</p>
-<input type="file" accept="video/*" id="extensionVideoFileInput" style="display: none;">
-`;
-
-  div.appendChild(videoURLBtn);
-  div.appendChild(deleteButton);
-  div.appendChild(hideButton);
-  div.appendChild(videoDropArea);
-
-  document.body.appendChild(div);
-  initVideoDropArea();
-}
-
-function initVideoDropArea() {
-  const dropArea = document.getElementById('extension-video-drop-area');
-  const fileInput = document.getElementById('extensionVideoFileInput');
-  // const resultDiv = document.getElementById('result');
-
-  // Prevent default behavior for drag and drop
-  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach((eventName) => {
-    dropArea.addEventListener(eventName, preventDefaults, false);
-    document.body.addEventListener(eventName, preventDefaults, false);
-  });
-
-  // Highlight drop area when dragging over
-  ['dragenter', 'dragover'].forEach((eventName) => {
-    dropArea.addEventListener(eventName, highlight, false);
-  });
-
-  // Remove highlight when dragging leaves
-  ['dragleave', 'drop'].forEach((eventName) => {
-    dropArea.addEventListener(eventName, unhighlight, false);
-  });
-
-  // Handle dropped files
-  dropArea.addEventListener('drop', handleDrop, false);
-
-  // Open file dialog when click on the drop area
-  dropArea.addEventListener('click', () => {
-    fileInput.click();
-  });
-
-  // Handle files selected from file input
-  fileInput.addEventListener('change', handleChange, false);
-
-  function preventDefaults(e) {
-    e.preventDefault();
-    e.stopPropagation();
-  }
-
-  function highlight() {
-    dropArea.classList.add('highlight');
-  }
-
-  function unhighlight() {
-    dropArea.classList.remove('highlight');
-  }
-
-  function handleChange(e) {
-    if (e.target.files.length > 0) {
-      handleFiles(e.target.files);
-    }
-  }
-
-  function handleDrop(e) {
-    const dt = e.dataTransfer;
-    const files = dt.files;
-    handleFiles(files);
-  }
-
-  function handleFiles(files) {
-    console.log(files);
-    const fileList = Array.from(files);
-    for (const file of fileList) {
-      if (file && file.type.startsWith('video')) {
-        const fileURL = URL.createObjectURL(file);
-        setVideoSource(currentVideoElement, fileURL);
-        // currentVideoElement.src = fileURL;
-        // currentVideoElement.play();
-      } else {
-        alert('Please select a valid video file.');
-      }
-    }
-    hideVideoPopup();
-  }
-}
-
-function detectVideos() {
-  let videos = document.getElementsByTagName('video');
-  console.log('videos on this page', videos);
-
-  // Add a contextmenu event listener to each videos
-  for (let index = 0; index < videos.length; index++) {
-    let video = videos[index];
-    video.addEventListener('contextmenu', function (event) {
-      // Prevent the default context menu from appearing
-      event.preventDefault();
-      // Alert the id of the clicked element
-      // alert('Right-click detected on button with id: ' + element.id);
-      showVideoPopup(event, video);
-    });
-  }
-}
-
-function showVideoPopup(event, element) {
-  // alert("Popup is shown");
-  var popup = document.getElementById('extension-video-popup');
-  popup.style.display = 'block';
-  currentVideoElement = element;
-  console.log(element);
-
-  // Calculate position based on the clicked element's coordinates
-  var x = event.clientX + window.scrollX;
-  var y = event.clientY + window.scrollY;
-
-  popup.style.left = x + 'px';
-  popup.style.top = y + 'px';
-}
-// Function to hide the popup
-function hideVideoPopup() {
-  var popup = document.getElementById('extension-video-popup');
-  popup.style.display = 'none';
-}
-
-function handleVideoURLBtnClick() {
-  if (currentVideoElement == null) {
-    return alert('No video selected');
-  }
-  let url = `https://placehold.co/${currentVideoElement.clientWidth}x${currentVideoElement.clientHeight}.mp4`;
-  // let poster = `https://placehold.co/${currentVideoElement.clientWidth}x${currentVideoElement.clientHeight}?text=Video`;
-  let userUrl = prompt('Enter video URL', url);
-  console.log(userUrl);
-  if (userUrl != null || userUrl != '') {
-    console.log(currentVideoElement);
-    setVideoSource(currentVideoElement, userUrl);
-  }
-}
-
-function setVideoSource(videoEl, url, poster = null) {
-  if (url == null || url == '') return;
-  videoEl.setAttribute(
-    'style',
-    `height: ${videoEl.clientHeight}px;
-     width: ${videoEl.clientWidth}px;`
-  );
-
-  videoEl.removeAttribute('poster');
-  videoEl.removeAttribute('data-poster');
-  videoEl.src = url;
-  if (poster != null) {
-    videoEl.poster = poster;
-  }
-
-  var sourceElements = videoEl.querySelectorAll('source');
-  sourceElements.forEach(function (source) {
-    source.setAttribute('srcset', url);
-    source.setAttribute('src', url);
-    source.setAttribute('data-srcset', url);
-    source.setAttribute('data-src', url);
-  });
-
-  videoEl.load();
-}
-
-function deleteVideoClick() {
-  if (currentVideoElement != null) {
-    currentVideoElement.remove();
-    currentVideoElement = null;
-  }
-}
-
-function hideVideoClick() {
-  if (currentVideoElement != null) {
-    currentVideoElement.style.display = 'none';
-    currentVideoElement = null;
-  }
-}
-
-document.addEventListener('click', function () {
-  hideVideoPopup();
-});
