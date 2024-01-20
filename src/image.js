@@ -1,3 +1,5 @@
+import canvasBuilder from './canvasBuilder';
+import icons from './icons.js';
 /**
  *==================================================================================================================================
  *==================================================================================================================================
@@ -20,9 +22,6 @@ detectImage();
 buildImagePopup();
 
 let currentImageElement = null;
-let imageWidth = null;
-let imageHeight = null;
-
 function buildImagePopup() {
   let style = document.createElement('style');
   style.innerHTML = ` .extension-image-popup {
@@ -33,6 +32,11 @@ function buildImagePopup() {
         padding: 15px;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         z-index: 99999999;
+        background: #2D8DFF;
+        color: white;
+        text-align: center;
+        border: none;
+        border-radius: 10px;
       }
       .extension-image-popup button {
         display: block;
@@ -43,57 +47,61 @@ function buildImagePopup() {
           padding: 20px;
           text-align: center;
           cursor: pointer;
+          max-width: 160px;
+          margin: 0 auto;
       }
 
       .extension-drop-area.highlight {
-          border-color: #2196F3;
+          border-color: white;
       }
-
-      .extension-drop-result {
-          margin-top: 20px;
-      }
-
       `;
   document.body.appendChild(style);
 
-  const div = document.createElement('div');
-  div.id = 'extension-image-popup';
-  div.className = 'extension-image-popup ';
-  div.innerHTML = `
-  <p>Image popup</p>
-  `;
+  const div = canvasBuilder.popupBuilder({
+    id: 'extension-image-popup',
+    className: 'extension-image-popup ',
+    html: `<strong>Image Detected</strong>`,
+  });
 
-  // delete element button
-  const imgUrlBtn = document.createElement('button');
-  imgUrlBtn.innerHTML = 'Image URL';
-  imgUrlBtn.onclick = handleImageUrlClick;
+  const imgUrlBtn = canvasBuilder.buildButton({
+    btnText: 'Image URL',
+    icon: icons.image,
+    onclick: handleImageUrlClick,
+  });
 
-  // add right click handler
-  const onclickBtn = document.createElement('button');
-  onclickBtn.innerHTML = 'Add click action';
-  onclickBtn.onclick = onClickHandler;
+  const onclickBtn = canvasBuilder.buildButton({
+    btnText: 'Javascript Action',
+    icon: icons.code,
+    onclick: onClickHandler,
+  });
 
   const imgDropArea = document.createElement('div');
   imgDropArea.id = 'extension-img-drop-area';
   imgDropArea.className = 'extension-drop-area';
-  imgDropArea.innerHTML = `
-<p>Drag and drop an image here or click to select one</p>
-<input type="file" id="extensionImageFileInput" style="display: none;">
-`;
+  imgDropArea.innerHTML = ` <span>Drag and drop an image here or click to select one</span><input type="file" id="extensionImageFileInput" style="display: none;">`;
 
-  // delete element button
-  const deleteButton = document.createElement('button');
-  deleteButton.innerHTML = 'Delete Image';
-  deleteButton.onclick = deleteImageClick;
+  const deleteButton = canvasBuilder.buildButton({
+    btnText: 'Delete Image',
+    icon: icons.delete,
+    onclick: deleteImageClick,
+  });
 
-  // hide button click
-  const hideButton = document.createElement('button');
-  hideButton.innerHTML = 'Hide Image';
-  hideButton.onclick = hideImageClick;
+  const hideButton = canvasBuilder.buildButton({
+    btnText: 'Hide Image',
+    icon: icons.eye,
+    onclick: hideImageClick,
+  });
 
-  div.appendChild(imgUrlBtn);
+  let hr = canvasBuilder.buildHr();
+  let hr2 = canvasBuilder.buildHr();
+  let hr3 = canvasBuilder.buildHr();
+
+  div.appendChild(hr);
   div.appendChild(onclickBtn);
+  div.appendChild(hr2);
+  div.appendChild(imgUrlBtn);
   div.appendChild(imgDropArea);
+  div.appendChild(hr3);
   div.appendChild(deleteButton);
   div.appendChild(hideButton);
 

@@ -3,6 +3,8 @@ import './button.js';
 import './image.js';
 import './video.js';
 import './bg-img.js';
+import icons from './icons.js';
+import canvasBuilder from './canvasBuilder.js';
 
 // Content script file will run in the context of web page.
 // With content script you can manipulate the web pages using
@@ -46,91 +48,71 @@ const IDS = {
 };
 
 function createDiv() {
-  const div = document.createElement('div');
-  div.id = IDS.divId;
-  div.setAttribute(
-    'style',
-    'display:block; margin-top:10px;text-align:center;position:sticky;bottom:20px;left:100%;transform:translateX(-10%);z-index:99999;max-width:10%;'
-  );
+  const div = canvasBuilder.buildCanvas({ id: IDS.divId });
 
   const p = document.createElement('p');
-  p.innerHTML = `Shortcut keys <br> ctrl + shift => image <br> ctrl+alt => video<br> ctrl+z => bg image.`;
+  p.innerHTML = `<strong>Menu</strong> <br> Shortcut keys <br> Image: ctrl + shift <br> Video: ctrl+alt <br>BG Image: ctrl+z`;
 
-  const button = document.createElement('button');
-  button.id = IDS.button1Id;
-  button.innerText = 'Turn Grayscale';
-  button.setAttribute(
-    'style',
-    'padding:14px 25px; color:white; background: #242424;margin-bottom: 10px;cursor: pointer;'
-  );
-  button.onclick = () => turnGrayScale();
+  const hr = canvasBuilder.buildHr();
+  const hr2 = canvasBuilder.buildHr();
+  const hr3 = canvasBuilder.buildHr();
 
-  const textButton = document.createElement('button');
-  textButton.innerText = 'Change All Text';
-  textButton.id = IDS.button4Id;
-  textButton.setAttribute(
-    'style',
-    'padding:14px 25px; color:white; background: #242424;margin-bottom: 10px;cursor: pointer;'
-  );
-  textButton.onclick = () => changeAllTextRecursively(document.body);
+  const btnGrayScale = canvasBuilder.buildButton({
+    id: IDS.button1Id,
+    btnText: 'Turn Grayscale',
+    icon: icons.colorPalate,
+    onclick: turnGrayScale,
+  });
 
-  const btnButton = document.createElement('button');
-  btnButton.innerText = 'Replace button text';
-  btnButton.id = IDS.button5Id;
-  btnButton.setAttribute(
-    'style',
-    'padding:14px 25px; color:white; background: #242424;margin-bottom: 10px;cursor: pointer;'
-  );
-  btnButton.onclick = () => replaceButtons();
+  const btnTextChange = canvasBuilder.buildButton({
+    id: IDS.button4Id,
+    btnText: 'Change All Text',
+    icon: icons.code,
+    onclick: () => changeAllTextRecursively(document.body),
+  });
 
-  const button2 = document.createElement('button');
-  button2.id = IDS.button2Id;
-  button2.innerText = 'Record video';
-  button2.setAttribute(
-    'style',
-    'padding:14px 25px; color:white; background: #242424;margin-bottom: 10px;cursor: pointer;'
-  );
-  button2.onclick = () => startRecording();
+  const btnBtnChange = canvasBuilder.buildButton({
+    id: IDS.button5Id,
+    btnText: 'Replace Button Text',
+    icon: icons.code,
+    onclick: replaceButtons,
+  });
 
-  const button22 = document.createElement('button');
-  button22.id = IDS.button22Id;
-  button22.innerText = 'Inject JavaScript';
-  button22.setAttribute(
-    'style',
-    'padding:14px 25px; color:white; background: #242424;margin-bottom: 10px;cursor: pointer;'
-  );
-  button22.onclick = () => injectJS();
+  const btnRecordVideo = canvasBuilder.buildButton({
+    id: IDS.button2Id,
+    btnText: 'Record Video',
+    icon: icons.recording,
+    onclick: startRecording,
+  });
 
-  const button3 = document.createElement('button');
-  button3.innerHTML = '&times;';
-  button3.id = IDS.button3Id;
-  button3.setAttribute(
+  const btnInjectJS = canvasBuilder.buildButton({
+    id: IDS.button22Id,
+    btnText: 'Inject JavaScript',
+    icon: icons.code,
+    onclick: injectJS,
+  });
+
+  const btnCross = document.createElement('button');
+  btnCross.innerHTML = '&times;';
+  btnCross.id = IDS.button3Id;
+  btnCross.setAttribute(
     'style',
-    'font-size: 27px;position: absolute;top: 0;right: 0;border: 2px solid #242424;cursor: pointer; text-align: center;padding: 3px 8px; margin:0;color:white; background: #242424;'
+    'font-size: 16px;position: absolute;top: 0;right: 0;border: none;cursor: pointer; text-align: center;padding: 3px 8px; margin:0;color:white;background: #10417a; border-radius:0 6px 0 6px;'
   );
-  button3.onclick = () => toggleBtnVisibility();
+  btnCross.onclick = () => toggleBtnVisibility();
 
   div.appendChild(p);
-  div.appendChild(button);
-  div.appendChild(textButton);
-  div.appendChild(btnButton);
-  div.appendChild(button2);
-  div.appendChild(button22);
-  div.appendChild(button3);
-
+  div.appendChild(hr);
+  div.appendChild(btnInjectJS);
+  div.appendChild(hr);
+  div.appendChild(btnRecordVideo);
+  div.appendChild(btnGrayScale);
+  div.appendChild(hr2);
+  div.appendChild(btnBtnChange);
+  div.appendChild(btnTextChange);
+  div.appendChild(hr3);
+  div.appendChild(btnCross);
   return div;
-}
-
-function createBtnEl(text, id, onclick = () => {}) {
-  const button = document.createElement('button');
-  button.innerHTML = text;
-  button.id = id;
-  button.setAttribute(
-    'style',
-    'font-size: 27px;position: absolute;top: 0;right: 0;border: 2px solid #242424;cursor: pointer; text-align: center;padding: 3px 8px; margin:0;color:white; background: #242424;'
-  );
-  button.onclick = onclick;
-  return button;
 }
 
 function toggleBtnVisibility() {
