@@ -1,7 +1,7 @@
 'use strict';
 import button from './button.js';
 import image from './image.js';
-import './video.js';
+import video from './video.js';
 import './bg-img.js';
 import icons from './icons.js';
 import canvasBuilder from './canvasBuilder.js';
@@ -23,6 +23,8 @@ image.detectImage();
 image.buildImagePopup();
 button.detectButton();
 button.buildButtonPopup();
+video.detectVideos();
+video.buildVideoPopup();
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.message == 'TOGGLE_MENU') {
@@ -181,8 +183,11 @@ function setUsingXpath(e) {
   }
 
   if (element.nodeName == 'BUTTON') {
-    
     button.showPopup(null, element);
+  }
+
+  if (element.nodeName == 'VIDEO') {
+    video.showVideoPopup(null, element);
   }
 
   element.setAttribute('loading', 'eager');
@@ -195,7 +200,7 @@ function toggleBtnVisibility() {
 
   if (el == null) {
     el = createDiv();
-    document.body.appendChild(el);
+    document.documentElement.appendChild(el);
   }
 
   if (el != null) {
