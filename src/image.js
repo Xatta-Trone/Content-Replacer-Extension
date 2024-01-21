@@ -19,6 +19,10 @@ import commonData from './common.js';
 
 // image related
 
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+  console.log(request.type);
+});
+
 detectImage();
 buildImagePopup();
 

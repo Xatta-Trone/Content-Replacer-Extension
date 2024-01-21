@@ -6,6 +6,8 @@ import './bg-img.js';
 import icons from './icons.js';
 import canvasBuilder from './canvasBuilder.js';
 
+
+
 // Content script file will run in the context of web page.
 // With content script you can manipulate the web pages using
 // Document Object Model (DOM).
@@ -49,6 +51,7 @@ const IDS = {
   button4Id: 'extension-text-button',
   button5Id: 'extension-btn-button',
   fabBtnId: 'extension-toggle-button',
+  xpathBtnId: 'extension-xpath-button',
 };
 
 function initFAB() {
@@ -122,6 +125,13 @@ function createDiv() {
     onclick: injectJS,
   });
 
+  const xpathBtn = canvasBuilder.buildButton({
+    id: IDS.xpathBtnId,
+    btnText: 'Xpath',
+    icon: icons.code,
+    onclick: setUsingXpath,
+  });
+
   const btnCross = document.createElement('button');
   btnCross.innerHTML = '&times;';
   btnCross.id = IDS.button3Id;
@@ -140,9 +150,29 @@ function createDiv() {
   div.appendChild(hr2);
   div.appendChild(btnBtnChange);
   div.appendChild(btnTextChange);
+  div.appendChild(xpathBtn);
   div.appendChild(hr3);
   div.appendChild(btnCross);
   return div;
+}
+
+function setUsingXpath() {
+  let xpath = prompt('Enter full xpath of the element');
+  if (xpath == null || xpath == '') return;
+
+  let element = document.evaluate(
+    xpath,
+    document,
+    null,
+    XPathResult.FIRST_ORDERED_NODE_TYPE,
+    null
+  ).singleNodeValue;
+
+  if (element == null) {
+    alert('No element found with xpath: ' + xpath);
+    return;
+  }
+  console.log(element, element.nodeType, element.nodeName);
 }
 
 function toggleBtnVisibility() {
