@@ -92,6 +92,7 @@ function createDiv() {
 
   const p = document.createElement('p');
   p.style.margin = '10px auto';
+  p.style.color = 'white';
   p.innerHTML = `<strong>Menu</strong> <br> Shortcut keys with mouse-move <br> Image: ctrl + shift <br> Video: ctrl + alt <br>BG Image: ctrl + z`;
 
   const hr = canvasBuilder.buildHr();
