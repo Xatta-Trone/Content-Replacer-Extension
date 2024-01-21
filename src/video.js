@@ -285,8 +285,8 @@ const video = {
   },
   videoTimer: null,
   onMouseMoveVideo: (event) => {
-    clearTimeout(videoTimer);
-    videoTimer = setTimeout(() => mouseStoppedVideo(event), 400);
+    clearTimeout(video.videoTimer);
+    video.videoTimer = setTimeout(() => video.mouseStoppedVideo(event), 400);
     // console.log('Mouse Position:', { x: mouseX, y: mouseY }, mouseStoppedVideo);
   },
 
@@ -302,7 +302,7 @@ const video = {
     // Do something with the target element, for example, log its tag name to the console
     if (targetElement) {
       console.log('Target Element:', targetElement);
-      const resultImg = findVideoRecursively(targetElement);
+      const resultImg = video.findVideoRecursively(targetElement);
 
       if (resultImg) {
         video.showVideoPopup(event, resultImg);

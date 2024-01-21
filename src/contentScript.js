@@ -2,7 +2,7 @@
 import button from './button.js';
 import image from './image.js';
 import video from './video.js';
-import './bg-img.js';
+import bgImg from './bg-img.js';
 import icons from './icons.js';
 import canvasBuilder from './canvasBuilder.js';
 
@@ -25,6 +25,8 @@ button.detectButton();
 button.buildButtonPopup();
 video.detectVideos();
 video.buildVideoPopup();
+bgImg.detectBgImg();
+bgImg.buildBGImagePopup();
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.message == 'TOGGLE_MENU') {
@@ -76,6 +78,7 @@ function initFAB() {
     line-height: 28px;
     cursor: pointer;
     z-index:99999999999999999999;
+    display:flex;
     `
   );
   fabBtn.onclick = () => {
@@ -88,6 +91,7 @@ function createDiv() {
   const div = canvasBuilder.buildCanvas({ id: IDS.divId });
 
   const p = document.createElement('p');
+  p.style.margin = '10px auto';
   p.innerHTML = `<strong>Menu</strong> <br> Shortcut keys with mouse-move <br> Image: ctrl + shift <br> Video: ctrl + alt <br>BG Image: ctrl + z`;
 
   const hr = canvasBuilder.buildHr();
@@ -131,7 +135,7 @@ function createDiv() {
 
   const xpathBtn = canvasBuilder.buildButton({
     id: IDS.xpathBtnId,
-    btnText: 'Xpath',
+    btnText: 'Select Using Xpath',
     icon: icons.code,
     onclick: setUsingXpath,
   });
@@ -189,10 +193,12 @@ function setUsingXpath(e) {
   if (element.nodeName == 'VIDEO') {
     video.showVideoPopup(null, element);
   }
+  // check for bg img
+  let bgElement = bgImg.findBgImageRecursively(element);
 
-  element.setAttribute('loading', 'eager');
-
-  console.log(element, element.nodeType, element.nodeName, element);
+  if (bgElement) {
+    bgImg.showBgImagePopup(null, bgElement);
+  }
 }
 
 function toggleBtnVisibility() {
@@ -204,7 +210,7 @@ function toggleBtnVisibility() {
   }
 
   if (el != null) {
-    el.style.display = el.style.display === 'none' ? 'inline-block' : 'none';
+    el.style.display = el.style.display === 'none' ? 'flex' : 'none';
   }
 }
 
@@ -320,7 +326,8 @@ function replaceButtons() {
       elements[index].id !== IDS.button2Id &&
       elements[index].id !== IDS.button3Id &&
       elements[index].id !== IDS.button4Id &&
-      elements[index].id !== IDS.button5Id
+      elements[index].id !== IDS.button5Id &&
+      elements[index].id !== IDS.xpathBtnId
     ) {
       elements[index].innerText = 'Button';
     }

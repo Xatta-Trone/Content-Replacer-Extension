@@ -4,7 +4,7 @@ const canvasBuilder = {
     div.id = id;
     div.setAttribute(
       'style',
-      'display:none;color:white; margin-top:10px;text-align:center;position:fixed;bottom:90px;right:0px;transform:translateX(-10%);z-index:99999;max-width:10%;background: #2D8DFF;padding: 10px;border-radius:10px;'
+      'display:none;color:white; margin-top:10px;text-align:center;position:fixed;bottom:90px;right:0px;transform:translateX(-10%);z-index:99999;max-width:10%;background: #2D8DFF;padding: 15px;border-radius:10px;flex-direction: column;'
     );
     return div;
   },
@@ -15,7 +15,7 @@ const canvasBuilder = {
     button.innerHTML = `${icon} ${btnText}`;
     button.setAttribute(
       'style',
-      'padding:5px 15px; color:white; background: #10417A; border: none; margin-bottom: 10px;cursor: pointer;font-size: 16px;box-shadow: 0px 2px 3px 1px #2d8dff; border-radius: 10px;display:block;width:100%;'
+      'padding:8px 15px; color:white; background: #10417A; border: none; margin-bottom: 10px;cursor: pointer;font-size: 16px;box-shadow: 0px 2px 3px 1px #2d8dff; border-radius: 10px;display:block;width:100%;display:flex;justify-content:center;align-items:center;'
     );
 
     button.onclick = () => onclick();
@@ -26,7 +26,7 @@ const canvasBuilder = {
     const hr = document.createElement('hr');
     hr.setAttribute(
       'style',
-      'color: white;border: white;border-top: 3px solid;border-radius: 52px;margin:10px auto;'
+      'color: white;border: white;border-top: 3px solid;border-radius: 52px;display:block;width:100%;margin: 10px auto 10px auto'
     );
     return hr;
   },
