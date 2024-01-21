@@ -17,6 +17,9 @@ import canvasBuilder from './canvasBuilder.js';
 // For more information on Content Scripts,
 // See https://developer.chrome.com/extensions/content_scripts
 
+// Init commands
+initFAB();
+
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.message == 'TOGGLE_MENU') {
     console.log('TOGGLING MENU');
@@ -45,13 +48,40 @@ const IDS = {
   button3Id: 'extension-close-button',
   button4Id: 'extension-text-button',
   button5Id: 'extension-btn-button',
+  fabBtnId: 'extension-toggle-button',
 };
+
+function initFAB() {
+  const fabBtn = document.createElement('div');
+  fabBtn.innerHTML = icons.threeDot;
+  fabBtn.setAttribute('id', 'extension-toggle-button');
+  fabBtn.setAttribute(
+    'style',
+    `
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    border-radius: 50%;
+    background: #2D8DFF;
+    padding: 10px 10px;
+    color: white;
+    text-align: center;
+    line-height: 28px;
+    cursor: pointer;
+    z-index:99999999999999999999;
+    `
+  );
+  fabBtn.onclick = () => {
+    toggleBtnVisibility();
+  };
+  document.body.appendChild(fabBtn);
+}
 
 function createDiv() {
   const div = canvasBuilder.buildCanvas({ id: IDS.divId });
 
   const p = document.createElement('p');
-  p.innerHTML = `<strong>Menu</strong> <br> Shortcut keys <br> Image: ctrl + shift <br> Video: ctrl+alt <br>BG Image: ctrl+z`;
+  p.innerHTML = `<strong>Menu</strong> <br> Shortcut keys with mouse-move <br> Image: ctrl + shift <br> Video: ctrl + alt <br>BG Image: ctrl + z`;
 
   const hr = canvasBuilder.buildHr();
   const hr2 = canvasBuilder.buildHr();
@@ -119,11 +149,12 @@ function toggleBtnVisibility() {
   let el = document.getElementById(IDS.divId);
 
   if (el == null) {
-    const div = createDiv();
-    document.body.appendChild(div);
-  } else {
-    // Todo: remove all listeners
-    el.remove();
+    el = createDiv();
+    document.body.appendChild(el);
+  }
+
+  if (el != null) {
+    el.style.display = el.style.display === 'none' ? 'inline-block' : 'none';
   }
 }
 
@@ -244,6 +275,4 @@ function replaceButtons() {
       elements[index].innerText = 'Button';
     }
   }
-};
-
-
+}

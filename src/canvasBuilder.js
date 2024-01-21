@@ -4,7 +4,7 @@ const canvasBuilder = {
     div.id = id;
     div.setAttribute(
       'style',
-      'display:inline-block;color:white; margin-top:10px;text-align:center;position:sticky;bottom:20px;left:100%;transform:translateX(-10%);z-index:99999;max-width:10%;background: #2D8DFF;padding: 10px;border-radius:10px;'
+      'display:none;color:white; margin-top:10px;text-align:center;position:fixed;bottom:90px;right:0px;transform:translateX(-10%);z-index:99999;max-width:10%;background: #2D8DFF;padding: 10px;border-radius:10px;'
     );
     return div;
   },
