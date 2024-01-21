@@ -190,12 +190,14 @@ const image = {
       }
       image.currentImageElement = null;
     }
+    image.hideImagePopup();
   },
   hideImageClick: () => {
     if (image.currentImageElement != null) {
       image.currentImageElement.style.display = 'none';
       image.currentImageElement = null;
     }
+    image.hideImagePopup();
   },
 
   onClickHandler: () => {
@@ -204,6 +206,7 @@ const image = {
       image.currentImageElement.removeAttribute('onclick');
       image.currentImageElement.setAttribute('onclick', jsCodeBlock);
     }
+     image.hideImagePopup();
   },
   handleImageUrlClick: () => {
     if (image.currentImageElement == null) {
@@ -217,6 +220,7 @@ const image = {
       image.currentImageElement
     );
     image.setImageSource(image.currentImageElement, userUrl);
+     image.hideImagePopup();
   },
 
   setImageSource: (currentImageElement, userUrl) => {
@@ -232,7 +236,7 @@ const image = {
     if (currentImageElement && currentImageElement.nodeName === 'IMG') {
       if (userUrl != null || userUrl != '') {
         currentImageElement.srcset = '';
-        currentImageElement.loading = 'eager';
+        currentImageElement.setAttribute('loading', 'eager');
         currentImageElement.removeAttribute('decoding');
         currentImageElement.removeAttribute('srcset');
         currentImageElement.removeAttribute('data-srcset');

@@ -1,5 +1,5 @@
 'use strict';
-import './button.js';
+import button from './button.js';
 import image from './image.js';
 import './video.js';
 import './bg-img.js';
@@ -21,6 +21,8 @@ import canvasBuilder from './canvasBuilder.js';
 initFAB();
 image.detectImage();
 image.buildImagePopup();
+button.detectButton();
+button.buildButtonPopup();
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.message == 'TOGGLE_MENU') {
@@ -176,6 +178,11 @@ function setUsingXpath(e) {
 
   if (element.nodeName == 'IMG') {
     image.showImagePopup(null, element);
+  }
+
+  if (element.nodeName == 'BUTTON') {
+    
+    button.showPopup(null, element);
   }
 
   element.setAttribute('loading', 'eager');

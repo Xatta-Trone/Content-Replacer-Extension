@@ -14,148 +14,165 @@ import commonData from './common';
  *==================================================================================================================================
  *==================================================================================================================================
  */
-detectButton();
-buildButtonPopup();
+const button = {
+  currentButtonElement: null,
+  detectButton: () => {
+    let buttonTags = [
+      'button',
+      // '.btn',
+      // '[class*=btn]',
+      'a[role=button]',
+      'span[role=button]',
+      'input[type=button]',
+      'input[type=submit]',
+      'input[type=reset]',
+    ];
+    let elements = [];
+    buttonTags.forEach((tag) =>
+      elements.push(...document.querySelectorAll(tag))
+    );
 
-function detectButton() {
-  let buttonTags = [
-    'button',
-    // '.btn',
-    // '[class*=btn]',
-    'a[role=button]',
-    'span[role=button]',
-    'input[type=button]',
-    'input[type=submit]',
-    'input[type=reset]',
-  ];
-  let elements = [];
-  buttonTags.forEach((tag) => elements.push(...document.querySelectorAll(tag)));
+    console.log(elements);
 
-  console.log(elements);
-
-  // Add a contextmenu event listener to each buttons
-  elements.forEach(function (element) {
-    element.addEventListener('contextmenu', function (event) {
-      // Prevent the default context menu from appearing
-      event.preventDefault();
-      // Alert the id of the clicked element
-      // alert('Right-click detected on button with id: ' + element.id);
-      showPopup(event, element);
+    // Add a contextmenu event listener to each buttons
+    elements.forEach(function (element) {
+      element.addEventListener('contextmenu', function (event) {
+        // Prevent the default context menu from appearing
+        event.preventDefault();
+        // Alert the id of the clicked element
+        // alert('Right-click detected on button with id: ' + element.id);
+        button.showPopup(event, element);
+      });
     });
-  });
-}
+  },
 
-let currentButtonElement = null;
-
-function buildButtonPopup() {
-  let style = document.createElement('style');
-  style.innerHTML = `
+  buildButtonPopup: () => {
+    let style = document.createElement('style');
+    style.innerHTML = `
   .extension-popup ${commonData.popupStyle}
   .extension-image-popup button {display: block;}
   `;
 
-  document.body.appendChild(style);
+    document.body.appendChild(style);
 
-  const div = canvasBuilder.popupBuilder({
-    id: 'extension-popup',
-    className: 'extension-popup',
-    html: `<strong>Button Detected</strong>`,
-  });
+    const div = canvasBuilder.popupBuilder({
+      id: 'extension-popup',
+      className: 'extension-popup',
+      html: `<strong>Button Detected</strong>`,
+    });
 
-  // delete element button
-  const deleteButton = canvasBuilder.buildButton({
-    btnText: 'Delete Button',
-    icon: icons.delete,
-    onclick: deleteButtonClick,
-  });
+    // delete element button
+    const deleteButton = canvasBuilder.buildButton({
+      btnText: 'Delete Button',
+      icon: icons.delete,
+      onclick: button.deleteButtonClick,
+    });
 
-  // hide button click
-  const hideButton = canvasBuilder.buildButton({
-    btnText: 'Hide Button',
-    icon: icons.eye,
-    onclick: hideButtonClick,
-  });
+    // hide button click
+    const hideButton = canvasBuilder.buildButton({
+      btnText: 'Hide Button',
+      icon: icons.eye,
+      onclick: button.hideButtonClick,
+    });
 
-  // change bg color click
-  const changeBgColorButton = canvasBuilder.buildButton({
-    btnText: 'Change BG Color',
-    icon: icons.colorPalate,
-    onclick: changeButtonBgColor,
-  });
+    // change bg color click
+    const changeBgColorButton = canvasBuilder.buildButton({
+      btnText: 'Change BG Color',
+      icon: icons.colorPalate,
+      onclick: button.changeButtonBgColor,
+    });
 
-  // add right click handler
-  const onclickBtn = canvasBuilder.buildButton({
-    btnText: 'Javascript Action',
-    icon: icons.code,
-    onclick: onClickButtonAction,
-  });
+    // add right click handler
+    const onclickBtn = canvasBuilder.buildButton({
+      btnText: 'Javascript Action',
+      icon: icons.code,
+      onclick: button.onClickButtonAction,
+    });
 
-  let hr = canvasBuilder.buildHr();
-  let hr2 = canvasBuilder.buildHr();
+    const btnCross = canvasBuilder.crossBuilder();
+    btnCross.onclick = button.hidePopup;
 
-  div.appendChild(hr);
-  div.appendChild(changeBgColorButton);
-  div.appendChild(onclickBtn);
-  div.appendChild(hr2);
-  div.appendChild(deleteButton);
-  div.appendChild(hideButton);
+    let hr = canvasBuilder.buildHr();
+    let hr2 = canvasBuilder.buildHr();
 
-  document.body.appendChild(div);
-}
+    div.appendChild(hr);
+    div.appendChild(changeBgColorButton);
+    div.appendChild(onclickBtn);
+    div.appendChild(hr2);
+    div.appendChild(deleteButton);
+    div.appendChild(hideButton);
+    div.appendChild(btnCross);
 
-function onClickButtonAction() {
-  var jsCodeBlock = prompt('Enter a valid JS code block:');
-  if (jsCodeBlock != '' || jsCodeBlock != null) {
-    currentButtonElement.removeAttribute('onclick');
-    currentButtonElement.setAttribute('onclick', jsCodeBlock);
-  }
-}
+    document.body.appendChild(div);
+  },
 
-function deleteButtonClick() {
-  if (currentButtonElement != null) {
-    currentButtonElement.remove();
-    currentButtonElement = null;
-  }
-}
-
-function hideButtonClick() {
-  if (currentButtonElement != null) {
-    currentButtonElement.style.display = 'none';
-    currentButtonElement = null;
-  }
-}
-
-function changeButtonBgColor() {
-  if (currentButtonElement != null) {
-    var color = prompt('Enter a valid color name/code:');
-    if (color != '' || color != null) {
-      currentButtonElement.style.backgroundColor = color;
+  onClickButtonAction: () => {
+    var jsCodeBlock = prompt('Enter a valid JS code block:');
+    if (jsCodeBlock != '' || jsCodeBlock != null) {
+      button.currentButtonElement.setAttribute('onclick', jsCodeBlock);
     }
-    currentButtonElement = null;
-  }
-}
+    button.hidePopup();
+  },
 
-function showPopup(event, element) {
-  // alert("Popup is shown");
-  var popup = document.getElementById('extension-popup');
-  popup.style.display = 'block';
-  console.log(event, popup, element);
-  currentButtonElement = element;
+  deleteButtonClick: () => {
+    if (button.currentButtonElement != null) {
+      button.currentButtonElement.remove();
+      button.currentButtonElement = null;
+    }
+    button.hidePopup();
+  },
 
-  // Calculate position based on the clicked element's coordinates
-  var x = event.clientX + window.pageXOffset;
-  var y = event.clientY + window.pageYOffset;
+  hideButtonClick: () => {
+    if (button.currentButtonElement != null) {
+      button.currentButtonElement.style.display = 'none';
+      button.currentButtonElement = null;
+    }
+    button.hidePopup();
+  },
 
-  popup.style.left = x + 'px';
-  popup.style.top = y + 'px';
-}
+  changeButtonBgColor: () => {
+    if (button.currentButtonElement != null) {
+      var color = prompt('Enter a valid color name/code:');
+      if (color != '' || color != null) {
+        button.currentButtonElement.style.backgroundColor = color;
+      }
+      button.currentButtonElement = null;
+    }
+    button.hidePopup();
+  },
 
-// Function to hide the popup
-function hidePopup() {
-  var popup = document.getElementById('extension-popup');
-  popup.style.display = 'none';
-}
+  showPopup: (event, element) => {
+    // alert("Popup is shown");
+    var popup = document.getElementById('extension-popup');
+    console.log(event, popup, element);
+    button.currentButtonElement = element;
 
-document.addEventListener('click', function () {
-  hidePopup();
-});
+    // Calculate position based on the clicked element's coordinates
+    var x = window.scrollX;
+    var y = window.scrollY;
+
+    if (event == null || event == undefined) {
+      const rect = element.getBoundingClientRect();
+      x += rect.left * 1.1;
+      y += rect.top * 1.1;
+    } else {
+      x = x + event.clientX;
+      y = y + event.clientY;
+    }
+
+    popup.style.left = x + 'px';
+    popup.style.top = y + 'px';
+    popup.style.display = 'block';
+  },
+
+  // Function to hide the popup
+  hidePopup: () => {
+    var popup = document.getElementById('extension-popup');
+    popup.style.display = 'none';
+  },
+};
+
+// document.addEventListener('click', function () {
+//   button.hidePopup();
+// });
+export default button;
