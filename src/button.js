@@ -1,3 +1,5 @@
+import canvasBuilder from './canvasBuilder';
+import icons from './icons';
 /**
  *==================================================================================================================================
  *==================================================================================================================================
@@ -54,6 +56,11 @@ function buildButtonPopup() {
         padding: 15px;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         z-index: 99999999;
+        background: #2D8DFF;
+        color: white;
+        text-align: center;
+        border: none;
+        border-radius: 10px;
       }
       .extension-popup button {
         display: block;
@@ -63,35 +70,49 @@ function buildButtonPopup() {
       `;
   document.body.appendChild(style);
 
-  const div = document.createElement('div');
-  div.id = 'extension-popup';
-  div.className = 'extension-popup ';
-  div.innerHTML = `<p>Button popup</p>`;
+  const div = canvasBuilder.popupBuilder({
+    id: 'extension-popup',
+    className: 'extension-popup',
+    html: `<strong>Button Detected</strong>`,
+  });
 
   // delete element button
-  const deleteButton = document.createElement('button');
-  deleteButton.innerHTML = 'Delete button';
-  deleteButton.onclick = deleteButtonClick;
+  const deleteButton = canvasBuilder.buildButton({
+    btnText: 'Delete Button',
+    icon: icons.delete,
+    onclick: deleteButtonClick,
+  });
 
   // hide button click
-  const hideButton = document.createElement('button');
-  hideButton.innerHTML = 'Hide button';
-  hideButton.onclick = hideButtonClick;
+  const hideButton = canvasBuilder.buildButton({
+    btnText: 'Hide Button',
+    icon: icons.eye,
+    onclick: hideButtonClick,
+  });
 
   // change bg color click
-  const changeBgColorButton = document.createElement('button');
-  changeBgColorButton.innerHTML = 'Change background color';
-  changeBgColorButton.onclick = changeButtonBgColor;
+  const changeBgColorButton = canvasBuilder.buildButton({
+    btnText: 'Change BG Color',
+    icon: icons.colorPalate,
+    onclick: changeButtonBgColor,
+  });
 
   // add right click handler
-  const onclickBtn = document.createElement('button');
-  onclickBtn.innerHTML = 'Add JS action';
-  onclickBtn.onclick = onClickButtonAction;
+  const onclickBtn = canvasBuilder.buildButton({
+    btnText: 'Javascript Action',
+    icon: icons.code,
+    onclick: onClickButtonAction,
+  });
 
-  div.appendChild(deleteButton);
-  div.appendChild(hideButton);
+  let hr = canvasBuilder.buildHr();
+  let hr2 = canvasBuilder.buildHr();
+
+  div.appendChild(hr);
   div.appendChild(changeBgColorButton);
   div.appendChild(onclickBtn);
+  div.appendChild(hr2);
+  div.appendChild(deleteButton);
+  div.appendChild(hideButton);
 
   document.body.appendChild(div);
 }
