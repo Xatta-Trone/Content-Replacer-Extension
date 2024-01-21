@@ -1,12 +1,10 @@
 'use strict';
 import './button.js';
-import './image.js';
+import image from './image.js';
 import './video.js';
 import './bg-img.js';
 import icons from './icons.js';
 import canvasBuilder from './canvasBuilder.js';
-
-
 
 // Content script file will run in the context of web page.
 // With content script you can manipulate the web pages using
@@ -21,6 +19,8 @@ import canvasBuilder from './canvasBuilder.js';
 
 // Init commands
 initFAB();
+image.detectImage();
+image.buildImagePopup();
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.message == 'TOGGLE_MENU') {
@@ -156,7 +156,8 @@ function createDiv() {
   return div;
 }
 
-function setUsingXpath() {
+function setUsingXpath(e) {
+  console.log(e);
   let xpath = prompt('Enter full xpath of the element');
   if (xpath == null || xpath == '') return;
 
@@ -172,7 +173,14 @@ function setUsingXpath() {
     alert('No element found with xpath: ' + xpath);
     return;
   }
-  console.log(element, element.nodeType, element.nodeName);
+
+  if (element.nodeName == 'IMG') {
+    image.showImagePopup(null, element);
+  }
+
+  element.setAttribute('loading', 'eager');
+
+  console.log(element, element.nodeType, element.nodeName, element);
 }
 
 function toggleBtnVisibility() {

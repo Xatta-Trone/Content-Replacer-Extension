@@ -39,6 +39,16 @@ const canvasBuilder = {
 
     return div;
   },
+
+  crossBuilder: () => {
+    const btnCross = document.createElement('button');
+    btnCross.innerHTML = '&times;';
+    btnCross.setAttribute(
+      'style',
+      'font-size: 16px;position: absolute;top: 0;right: 0;border: none;cursor: pointer; text-align: center;padding: 3px 8px; margin:0;color:white;background: #10417a; border-radius:0 6px 0 6px;'
+    );
+    return btnCross;
+  },
 };
 
 export default canvasBuilder;
