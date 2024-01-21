@@ -26,7 +26,7 @@ const canvasBuilder = {
     const hr = document.createElement('hr');
     hr.setAttribute(
       'style',
-      'color: white;border: white;border-top: 3px solid;border-radius: 52px;'
+      'color: white;border: white;border-top: 3px solid;border-radius: 52px;margin:10px auto;'
     );
     return hr;
   },

@@ -1,5 +1,6 @@
 import canvasBuilder from './canvasBuilder';
 import icons from './icons.js';
+import commonData from './common.js';
 /**
  *==================================================================================================================================
  *==================================================================================================================================
@@ -24,36 +25,11 @@ buildImagePopup();
 let currentImageElement = null;
 function buildImagePopup() {
   let style = document.createElement('style');
-  style.innerHTML = ` .extension-image-popup {
-        display: none;
-        position: absolute;
-        background-color: #fff;
-        border: 1px solid #ccc;
-        padding: 15px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        z-index: 99999999;
-        background: #2D8DFF;
-        color: white;
-        text-align: center;
-        border: none;
-        border-radius: 10px;
-      }
-      .extension-image-popup button {
-        display: block;
-      }
-
-      .extension-drop-area {
-          border: 2px dashed #ccc;
-          padding: 20px;
-          text-align: center;
-          cursor: pointer;
-          max-width: 160px;
-          margin: 0 auto;
-      }
-
-      .extension-drop-area.highlight {
-          border-color: white;
-      }
+  style.innerHTML = `
+      .extension-image-popup ${commonData.popupStyle}
+      .extension-image-popup button {display: block;}
+      .extension-drop-area ${commonData.dropAreaStyle}
+      .extension-drop-area.highlight ${commonData.dropAreaHighLightStyle}
       `;
   document.body.appendChild(style);
 
@@ -78,7 +54,7 @@ function buildImagePopup() {
   const imgDropArea = document.createElement('div');
   imgDropArea.id = 'extension-img-drop-area';
   imgDropArea.className = 'extension-drop-area';
-  imgDropArea.innerHTML = ` <span>Drag and drop an image here or click to select one</span><input type="file" id="extensionImageFileInput" style="display: none;">`;
+  imgDropArea.innerHTML = ` <span display='inline-block'>Drag and drop an image here or click to select one</span><input type="file" id="extensionImageFileInput" style="display: none;">`;
 
   const deleteButton = canvasBuilder.buildButton({
     btnText: 'Delete Image',

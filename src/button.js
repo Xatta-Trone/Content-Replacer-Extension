@@ -1,5 +1,6 @@
 import canvasBuilder from './canvasBuilder';
 import icons from './icons';
+import commonData from './common';
 /**
  *==================================================================================================================================
  *==================================================================================================================================
@@ -48,26 +49,11 @@ let currentButtonElement = null;
 
 function buildButtonPopup() {
   let style = document.createElement('style');
-  style.innerHTML = ` .extension-popup {
-        display: none;
-        position: absolute;
-        background-color: #fff;
-        border: 1px solid #ccc;
-        padding: 15px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        z-index: 99999999;
-        background: #2D8DFF;
-        color: white;
-        text-align: center;
-        border: none;
-        border-radius: 10px;
-      }
-      .extension-popup button {
-        display: block;
-      }
+  style.innerHTML = `
+  .extension-popup ${commonData.popupStyle}
+  .extension-image-popup button {display: block;}
+  `;
 
-
-      `;
   document.body.appendChild(style);
 
   const div = canvasBuilder.popupBuilder({

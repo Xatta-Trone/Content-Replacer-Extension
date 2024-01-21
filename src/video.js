@@ -1,3 +1,6 @@
+import canvasBuilder from './canvasBuilder';
+import icons from './icons';
+import commonData from './common';
 /**
  *==================================================================================================================================
  *==================================================================================================================================
@@ -17,72 +20,75 @@ buildVideoPopup();
 
 function buildVideoPopup() {
   let style = document.createElement('style');
-  style.innerHTML = ` .extension-video-popup {
-        display: none;
-        position: absolute;
-        background-color: #fff;
-        border: 1px solid #ccc;
-        padding: 15px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        z-index: 99999999;
-      }
-      .extension-video-popup button {
-        display: block;
-      }
-
-      .extension-drop-area {
-          border: 2px dashed #ccc;
-          padding: 20px;
-          text-align: center;
-          cursor: pointer;
-      }
-
-      .extension-drop-area.highlight {
-          border-color: #2196F3;
-      }
-
-      .extension-drop-result {
-          margin-top: 20px;
-      }
-
-      `;
+  style.innerHTML = `
+  .extension-video-popup ${commonData.popupStyle}
+  .extension-video-popup button {display: block;}
+  .extension-drop-area ${commonData.dropAreaStyle}
+  .extension-drop-area.highlight ${commonData.dropAreaHighLightStyle}
+  `;
   document.body.appendChild(style);
 
-  const div = document.createElement('div');
-  div.id = 'extension-video-popup';
-  div.className = 'extension-video-popup ';
-  div.innerHTML = `<p>Video popup</p>`;
+  const div = canvasBuilder.popupBuilder({
+    id: 'extension-video-popup',
+    className: 'extension-video-popup ',
+    html: `<strong>Video Detected</strong>`,
+  });
 
   // video replace by url btn
-  const videoURLBtn = document.createElement('button');
-  videoURLBtn.innerHTML = 'Video URL';
-  videoURLBtn.onclick = handleVideoURLBtnClick;
+  const videoURLBtn = canvasBuilder.buildButton({
+    btnText: 'Video URL',
+    icon: icons.play,
+    onclick: handleVideoURLBtnClick,
+  });
 
   // delete element button
-  const deleteButton = document.createElement('button');
-  deleteButton.innerHTML = 'Delete Video';
-  deleteButton.onclick = deleteVideoClick;
+  const deleteButton = canvasBuilder.buildButton({
+    btnText: 'Delete Video',
+    icon: icons.delete,
+    onclick: deleteVideoClick,
+  });
 
   // hide button click
-  const hideButton = document.createElement('button');
-  hideButton.innerHTML = 'Hide Video';
-  hideButton.onclick = hideVideoClick;
+  const hideButton = canvasBuilder.buildButton({
+    btnText: 'Hide Video',
+    icon: icons.eye,
+    onclick: hideVideoClick,
+  });
+
+  const onclickBtn = canvasBuilder.buildButton({
+    btnText: 'Javascript Action',
+    icon: icons.code,
+    onclick: onClickHandler,
+  });
 
   const videoDropArea = document.createElement('div');
   videoDropArea.id = 'extension-video-drop-area';
   videoDropArea.className = 'extension-drop-area';
-  videoDropArea.innerHTML = `
-<p>Drag and drop an video here or click to select one</p>
-<input type="file" accept="video/*" id="extensionVideoFileInput" style="display: none;">
-`;
+  videoDropArea.innerHTML = `<span display='inline-block'>Drag and drop an video here or click to select one</span><input type="file" accept="video/*" id="extensionVideoFileInput" style="display: none;">`;
 
+  let hr = canvasBuilder.buildHr();
+  let hr2 = canvasBuilder.buildHr();
+  let hr3 = canvasBuilder.buildHr();
+
+  div.appendChild(hr);
+  div.appendChild(onclickBtn);
+  div.appendChild(hr2);
   div.appendChild(videoURLBtn);
+  div.appendChild(videoDropArea);
+  div.appendChild(hr3);
   div.appendChild(deleteButton);
   div.appendChild(hideButton);
-  div.appendChild(videoDropArea);
 
   document.body.appendChild(div);
   initVideoDropArea();
+}
+
+function onClickHandler() {
+  var jsCodeBlock = prompt('Enter a valid JS code block:');
+  if (jsCodeBlock != '' || jsCodeBlock != null) {
+    currentVideoElement.removeAttribute('onclick');
+    currentVideoElement.setAttribute('onclick', jsCodeBlock);
+  }
 }
 
 function initVideoDropArea() {

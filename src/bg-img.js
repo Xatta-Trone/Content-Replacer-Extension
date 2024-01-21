@@ -1,3 +1,6 @@
+import canvasBuilder from './canvasBuilder';
+import icons from './icons';
+import commonData from './common';
 /**
  *==================================================================================================================================
  *==================================================================================================================================
@@ -19,70 +22,56 @@ buildBGImagePopup();
 
 function buildBGImagePopup() {
   let style = document.createElement('style');
-  style.innerHTML = ` .extension-bg-image-popup {
-        display: none;
-        position: absolute;
-        background-color: #fff;
-        border: 1px solid #ccc;
-        padding: 15px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        z-index: 99999999;
-      }
-      .extension-bg-image-popup button {
-        display: block;
-      }
-
-      .extension-drop-area {
-          border: 2px dashed #ccc;
-          padding: 20px;
-          text-align: center;
-          cursor: pointer;
-      }
-
-      .extension-drop-area.highlight {
-          border-color: #2196F3;
-      }
-
-      .extension-drop-result {
-          margin-top: 20px;
-      }
-
+  style.innerHTML = `
+      .extension-bg-image-popup ${commonData.popupStyle}
+      .extension-bg-image-popup button {display: block;}
+      .extension-drop-area ${commonData.dropAreaStyle}
+      .extension-drop-area.highlight ${commonData.dropAreaHighLightStyle}
       `;
   document.body.appendChild(style);
 
-  const div = document.createElement('div');
-  div.id = 'extension-bg-image-popup';
-  div.className = 'extension-bg-image-popup ';
-  div.innerHTML = `
-  <p>BG Image popup</p>
-  `;
+  const div = canvasBuilder.popupBuilder({
+    id: 'extension-bg-image-popup',
+    className: 'extension-bg-image-popup ',
+    html: `<strong>BG Image Detected</strong>`,
+  });
 
-  // delete element button
-  const imgUrlBtn = document.createElement('button');
-  imgUrlBtn.innerHTML = 'Image URL';
-  imgUrlBtn.onclick = handleBgImageUrlClick;
+  const imgUrlBtn = canvasBuilder.buildButton({
+    btnText: 'Image URL',
+    icon: icons.image,
+    onclick: handleBgImageUrlClick,
+  });
 
-  // add right click handler
-  const onclickBtn = document.createElement('button');
-  onclickBtn.innerHTML = 'Add click action';
-  onclickBtn.onclick = bgOnClickHandler;
+  const onclickBtn = canvasBuilder.buildButton({
+    btnText: 'Javascript Action',
+    icon: icons.code,
+    onclick: bgOnClickHandler,
+  });
 
   const imgDropArea = document.createElement('div');
   imgDropArea.id = 'extension-bg-img-drop-area';
   imgDropArea.className = 'extension-drop-area';
-  imgDropArea.innerHTML = `
-  <p>Drag and drop an image here or click to select one</p>
-  <input type="file" id="extensionBgImageFileInput" style="display: none;">
-  `;
+  imgDropArea.innerHTML = `<span display='inline-block'>Drag and drop an image here or click to select one</span>
+  <input type="file" id="extensionBgImageFileInput" style="display: none;">`;
 
-  // delete element button
-  const deleteButton = document.createElement('button');
-  deleteButton.innerHTML = 'Delete Image';
-  deleteButton.onclick = deleteBgImageClick;
-  div.appendChild(imgUrlBtn);
+  const deleteButton = canvasBuilder.buildButton({
+    btnText: 'Delete Image',
+    icon: icons.delete,
+    onclick: deleteBgImageClick,
+  });
+
+  let hr = canvasBuilder.buildHr();
+  let hr2 = canvasBuilder.buildHr();
+  let hr3 = canvasBuilder.buildHr();
+
+  div.appendChild(hr);
   div.appendChild(onclickBtn);
+  div.appendChild(hr2);
+  div.appendChild(imgUrlBtn);
   div.appendChild(imgDropArea);
+  div.appendChild(hr3);
   div.appendChild(deleteButton);
+
   document.body.appendChild(div);
   initBgImageElementDropArea();
 }
