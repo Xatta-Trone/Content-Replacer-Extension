@@ -27,7 +27,7 @@ Suggestions and pull requests are welcomed!.
 
 ## Demo
 
-<video src="./assets/demo.mp4" controls="controls">
+<video src="assets/demo.mp4" controls="controls">
 </video>
 
 
