@@ -85,6 +85,13 @@ function initFAB() {
     toggleBtnVisibility();
   };
   document.body.appendChild(fabBtn);
+
+  let script = `<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'">`;
+
+  // var meta = document.createElement('meta');
+  // meta.httpEquiv = 'Content-Security-Policy';
+  // meta.content = "default-src 'self'; script-src 'self' 'unsafe-inline'";
+  // document.head.appendChild(meta);
 }
 
 function createDiv() {
@@ -242,11 +249,6 @@ function injectJS() {
     return;
   }
 
-  let script = document.createElement('script');
-  script.type = 'text/javascript';
-  script.innerHTML = jsCode;
-  document.body.appendChild(script);
-
   chrome.runtime.sendMessage(
     {
       type: 'EXECUTE',
@@ -256,6 +258,11 @@ function injectJS() {
       console.log(response);
     }
   );
+
+  let script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.innerHTML = jsCode;
+  document.body.appendChild(script);
 }
 
 function changeAllTextRecursively(element) {
