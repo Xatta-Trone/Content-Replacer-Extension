@@ -27,8 +27,7 @@ Suggestions and pull requests are welcomed!.
 
 ## Demo
 
-<video src="assets/demo.mp4" controls="controls">
-</video>
+![Demo](/assets/demo.gif)
 
 
 This project was bootstrapped with [Chrome Extension CLI](https://github.com/dutiyesh/chrome-extension-cli)
